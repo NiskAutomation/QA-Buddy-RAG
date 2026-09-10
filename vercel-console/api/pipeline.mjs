@@ -140,16 +140,15 @@ async function generateDesign(apiKey, documents, config) {
   const system = 'You are a senior QA architect. Extract atomic requirements, preserve source truth, and return only valid JSON matching the supplied schema. Every ID link must be valid. Missing details become explicit ambiguities.';
   if (config.provider === 'anthropic') return anthropic(apiKey, system, designContent(documents, config), designTool(), config);
   if (config.provider === 'gemini') return gemini(apiKey, system, geminiDesignParts(documents, config), designTool(), config);
+  if (config.provider === 'openai') return openAIResponses(apiKey, system, openAIDesignInput(documents, config), designTool(), config);
   const evidence = sourceText(documents);
   if (!evidence.trim()) {
-    const error = new Error('This provider needs TXT, Markdown, JSON, CSV, or pasted criteria in the hosted console. Use Claude or Gemini for direct PDF and image analysis.');
+    const error = new Error('This provider needs TXT, Markdown, JSON, CSV, or pasted criteria. For direct PDF, DOCX, and image analysis, choose OpenAI GPT/Codex, Claude, or Gemini with a compatible model.');
     error.status = 422;
     throw error;
   }
   const prompt = `Configuration:\n${JSON.stringify(config, null, 2)}\n\nRequirement evidence:\n${evidence}`;
-  return config.provider === 'openai'
-    ? openAIResponses(apiKey, system, prompt, designTool(), config)
-    : chatJson(apiKey, system, prompt, designTool(), config);
+  return chatJson(apiKey, system, prompt, designTool(), config);
 }
 
 async function generateAutomation(apiKey, design, config) {
@@ -204,6 +203,42 @@ function geminiDesignParts(documents, config) {
   return parts;
 }
 
+export function openAIDesignInput(documents, config) {
+  const content = [{
+    type: 'input_text',
+    text: `Configuration:\n${JSON.stringify(config, null, 2)}\n\nCreate a complete QA design grounded only in the supplied evidence. Do not invent missing behavior.`,
+  }];
+  for (const document of documents) {
+    const mediaType = fileMediaType(document);
+    if (document.encoding === 'text' || textTypes.has(mediaType)) {
+      content.push({ type: 'input_text', text: `SOURCE ${document.name}:\n${document.content}` });
+    } else if (imageTypes.has(mediaType)) {
+      content.push({ type: 'input_image', image_url: `data:${mediaType};base64,${document.content}`, detail: 'high' });
+    } else if (mediaType === 'application/pdf' || mediaType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      content.push({
+        type: 'input_file',
+        filename: document.name,
+        file_data: `data:${mediaType};base64,${document.content}`,
+        ...(mediaType === 'application/pdf' ? { detail: 'high' } : {}),
+      });
+    } else {
+      content.push({ type: 'input_text', text: `SOURCE ${document.name}: unsupported binary format. Record a blocking ambiguity requesting PDF, DOCX, image, Markdown, or text evidence.` });
+    }
+  }
+  return [{ role: 'user', content }];
+}
+
+function fileMediaType(document) {
+  const mediaType = String(document.mediaType || '').toLowerCase();
+  if (mediaType && mediaType !== 'application/octet-stream') return mediaType;
+  if (/\.pdf$/i.test(document.name)) return 'application/pdf';
+  if (/\.docx$/i.test(document.name)) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if (/\.png$/i.test(document.name)) return 'image/png';
+  if (/\.jpe?g$/i.test(document.name)) return 'image/jpeg';
+  if (/\.webp$/i.test(document.name)) return 'image/webp';
+  return mediaType || 'application/octet-stream';
+}
+
 async function gemini(apiKey, system, parts, tool, config) {
   const key = String(apiKey || '').trim();
   validateKey(key);
@@ -223,10 +258,16 @@ async function gemini(apiKey, system, parts, tool, config) {
 async function openAIResponses(apiKey, system, prompt, tool, config) {
   const key = String(apiKey || '').trim();
   validateKey(key);
+  const schemaInstruction = `Return one JSON object matching this schema:\n${JSON.stringify(tool.input_schema)}`;
+  const input = Array.isArray(prompt)
+    ? prompt.map((message, index) => index === prompt.length - 1
+      ? { ...message, content: [...message.content, { type: 'input_text', text: schemaInstruction }] }
+      : message)
+    : `${prompt}\n\n${schemaInstruction}`;
   const result = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model: config.model, instructions: system, input: `${prompt}\n\nReturn one JSON object matching this schema:\n${JSON.stringify(tool.input_schema)}`, max_output_tokens: config.maxOutputTokens, store: false, text: { format: { type: 'json_object' } } }),
+    body: JSON.stringify({ model: config.model, instructions: system, input, max_output_tokens: config.maxOutputTokens, store: false, text: { format: { type: 'json_object' } } }),
     signal: AbortSignal.timeout(55_000),
   });
   const body = await result.json().catch(() => ({}));
