@@ -9,11 +9,15 @@
 </p>
 
 <p align="center">
-  <a href="https://temporary-instant-walnut-pq3jq6q.vercel.app/"><img alt="Live demo" src="https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel"></a>
+  <a href="https://qa-buddy-rag.vercel.app/"><img alt="Live website" src="https://img.shields.io/badge/Live_Website-Vercel-000000?style=for-the-badge&logo=vercel"></a>
   <a href="https://github.com/NiskAutomation/QA-Buddy-RAG/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/NiskAutomation/QA-Buddy-RAG/qa-pipeline.yml?branch=main&style=for-the-badge&label=QA%20Pipeline&logo=githubactions"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white">
   <img alt="React" src="https://img.shields.io/badge/React-Console-149ECA?style=for-the-badge&logo=react&logoColor=white">
   <img alt="Playwright" src="https://img.shields.io/badge/Playwright-Automation-2EAD33?style=for-the-badge&logo=playwright&logoColor=white">
+</p>
+
+<p align="center">
+  <strong>Live website:</strong> <a href="https://qa-buddy-rag.vercel.app/">https://qa-buddy-rag.vercel.app/</a>
 </p>
 
 <p align="center">
@@ -24,7 +28,7 @@
   <a href="#deployment">Deploy</a>
 </p>
 
-> The current Vercel preview is available at <a href="https://temporary-instant-walnut-pq3jq6q.vercel.app/">temporary-instant-walnut-pq3jq6q.vercel.app</a>. Use the deployment section below to create a permanent deployment under your own Vercel account.
+> The permanent Vercel website is available at <a href="https://qa-buddy-rag.vercel.app/">qa-buddy-rag.vercel.app</a>.
 
 ## What QA Buddy RAG does
 
@@ -315,7 +319,7 @@ For automated production deployment, configure these GitHub repository secrets:
 
 The React console is already available at:
 
-**<a href="https://temporary-instant-walnut-pq3jq6q.vercel.app/">Open the live Quality Forge preview</a>**
+**<a href="https://qa-buddy-rag.vercel.app/">Open the live Quality Forge website</a>**
 
 Create a permanent project from this repository:
 
