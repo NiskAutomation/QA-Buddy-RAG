@@ -1,0 +1,30 @@
+name: Publish QA Buddy RAG source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - qa-buddy-rag-b5a2cfb.zip
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Expand verified source archive
+        run: unzip -o qa-buddy-rag-b5a2cfb.zip
+
+      - name: Replace bootstrap files with project source
+        run: |
+          rm qa-buddy-rag-b5a2cfb.zip
+          rm .github/workflows/bootstrap-publish.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git commit -m "feat: launch QA Buddy RAG agent and React console"
+          git push
