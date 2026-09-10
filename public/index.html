@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentic QA Dashboard</title><style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif}body{margin:0;background:#07111f;color:#dbeafe}main{max-width:1180px;margin:auto;padding:48px 24px}h1{font-size:clamp(2rem,5vw,4rem);letter-spacing:-.04em;margin:0 0 8px}.muted{color:#93a4ba}a{color:#67e8f9}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:32px 0}.card{background:#0d1b2e;border:1px solid #20344e;border-radius:16px;padding:22px;box-shadow:0 12px 35px #0005}.metric{font-size:2rem;font-weight:750;color:#67e8f9}.table-wrap{overflow-x:auto}table{width:100%;min-width:780px;border-collapse:collapse}th,td{text-align:left;padding:14px 12px;border-bottom:1px solid #20344e;vertical-align:top}th{color:#93c5fd;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}code{color:#a5f3fc}.pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:.75rem;background:#26364b}.covered{color:#86efac;background:#14532d66}.missing_script,.missing_case,.missing_scenario{color:#fde68a;background:#713f1266}
+</style></head><body><main><p class="muted">PLAYWRIGHT · ALLURE · TRACEABILITY</p><h1>Agentic QA dashboard</h1>
+<p><a href="/playwright/">Open Playwright HTML report</a> · <a href="/allure/">Open Allure report</a></p>
+<section class="grid"><div class="card"><div class="metric">5</div><div class="muted">Requirements</div></div><div class="card"><div class="metric">100%</div><div class="muted">Automated coverage</div></div><div class="card"><div class="metric">7</div><div class="muted">Tests passed</div></div><div class="card"><div class="metric">0</div><div class="muted">Tests failed</div></div></section>
+<section class="card table-wrap"><h2>Requirement → scenario → case → script</h2><table><thead><tr><th>Requirement</th><th>Scenarios</th><th>Cases</th><th>Scripts</th><th>Status</th></tr></thead><tbody><tr>
+  <td><code>REQ-AUTH-001</code></td>
+  <td>SCN-001</td>
+  <td>TC-001</td>
+  <td>tests/TC-001.spec.ts</td>
+  <td><span class="pill covered">covered</span></td>
+</tr>
+<tr>
+  <td><code>REQ-AUTH-002</code></td>
+  <td>SCN-002</td>
+  <td>TC-002</td>
+  <td>tests/TC-002.spec.ts</td>
+  <td><span class="pill covered">covered</span></td>
+</tr>
+<tr>
+  <td><code>REQ-AUTH-003</code></td>
+  <td>SCN-003</td>
+  <td>TC-003</td>
+  <td>tests/TC-003.spec.ts</td>
+  <td><span class="pill covered">covered</span></td>
+</tr>
+<tr>
+  <td><code>REQ-NFR-001</code></td>
+  <td>SCN-004</td>
+  <td>TC-004</td>
+  <td>tests/TC-004.spec.ts</td>
+  <td><span class="pill covered">covered</span></td>
+</tr>
+<tr>
+  <td><code>REQ-NFR-002</code></td>
+  <td>SCN-005</td>
+  <td>TC-005</td>
+  <td>tests/TC-005.spec.ts</td>
+  <td><span class="pill covered">covered</span></td>
+</tr></tbody></table></section>
+</main></body></html>

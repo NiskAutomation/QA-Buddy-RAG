@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QA Login Sample</title>
+  <style>
+    :root { font-family: Inter, system-ui, sans-serif; color: #e2e8f0; background: #07111f; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; }
+    main { width: min(390px, calc(100% - 48px)); padding: 32px; border: 1px solid #263b55; border-radius: 18px; background: #0e1c2f; box-shadow: 0 24px 70px #0007; }
+    h1 { margin-top: 0; }
+    label { display: grid; gap: 7px; margin: 18px 0; color: #bfdbfe; }
+    input { font: inherit; padding: 12px; border: 1px solid #38516f; border-radius: 9px; color: #e2e8f0; background: #07111f; }
+    button { width: 100%; padding: 12px; border: 0; border-radius: 9px; font-weight: 700; color: #06202a; background: #67e8f9; cursor: pointer; }
+    [role=alert] { color: #fda4af; min-height: 1.5em; }
+    [role=status] { color: #86efac; font-weight: 700; }
+  </style>
+</head>
+<body><main>
+  <h1>Customer sign in</h1>
+  <form id="login-form">
+    <label>Email<input name="email" type="email" autocomplete="username" required></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <button type="submit">Sign in</button>
+  </form>
+  <p role="alert" aria-live="assertive"></p>
+  <p role="status" aria-live="polite"></p>
+  <script>
+    document.querySelector('#login-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      const valid = data.get('email') === 'qa@example.com' && data.get('password') === 'Correct123!';
+      document.querySelector('[role=alert]').textContent = valid ? '' : 'Invalid email or password';
+      document.querySelector('[role=status]').textContent = valid ? 'Welcome, QA Customer' : '';
+    });
+  </script>
+</main></body>
+</html>

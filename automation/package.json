@@ -1,0 +1,28 @@
+{
+  "name": "agentic-rag-qa-automation",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "serve": "http-server sample-app -p 4173 -c-1",
+    "test": "node scripts/run-tests.mjs",
+    "test:chromium": "node scripts/run-tests.mjs --project=chromium",
+    "test:pw": "playwright test",
+    "test:bdd": "cucumber-js --config cucumber.js",
+    "test:smoke": "playwright test --grep @smoke",
+    "report:allure": "allure generate allure-results --clean -o allure-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.14.0",
+    "allure-commandline": "^2.34.0",
+    "allure-cucumberjs": "^3.2.1",
+    "allure-playwright": "^3.2.1",
+    "dotenv": "^16.5.0",
+    "http-server": "^14.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

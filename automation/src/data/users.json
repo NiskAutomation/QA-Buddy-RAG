@@ -1,0 +1,11 @@
+{
+  "activeCustomer": {
+    "email": "qa@example.com",
+    "password": "Correct123!",
+    "displayName": "QA Customer"
+  },
+  "invalidCustomer": {
+    "email": "unknown@example.com",
+    "password": "Wrong123!"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "dev": {
+    "baseURL": "http://127.0.0.1:4173"
+  },
+  "staging": {
+    "baseURL": "${STAGING_BASE_URL}"
+  },
+  "prod": {
+    "baseURL": "${PROD_BASE_URL}"
+  }
+}

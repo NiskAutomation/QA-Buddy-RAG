@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-rag-qa"
+version = "0.1.0"
+description = "Schema-first RAG pipeline that turns requirements into traceable QA automation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "anthropic>=0.49,<1",
+  "chromadb>=0.6,<2",
+  "jsonschema>=4.23,<5",
+  "langgraph>=0.3,<2",
+  "Pillow>=11,<13",
+  "pydantic>=2.10,<3",
+  "pydantic-settings>=2.7,<3",
+  "pypdf>=5,<7",
+  "python-docx>=1.1,<2",
+  "rich>=13.9,<15",
+  "typer>=0.15,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<10",
+  "pytest-cov>=6,<8",
+]
+semantic = [
+  "sentence-transformers>=3.4,<6",
+]
+
+[project.scripts]
+run-pipeline = "qa_agent.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/qa_agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+addopts = "-q"
