@@ -74,6 +74,17 @@ const config = {
   approvalGate: true,
 };
 
+await invoke({
+  phase: 'design',
+  config: { ...config, model: 'openai/gpt-oss-120b' },
+  documents: [{
+    name: 'groq-style-model.md',
+    mediaType: 'text/markdown',
+    encoding: 'text',
+    content: 'REQ-MODEL-001 — Provider-qualified model identifiers shall be accepted.',
+  }],
+});
+
 const designResponse = await invoke({
   phase: 'design',
   config,
