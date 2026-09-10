@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import handler from './api/pipeline.mjs';
+import handler, { openAIDesignInput } from './api/pipeline.mjs';
 import { verifyAndList } from './api/models.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -31,6 +31,21 @@ const gptModels = await verifyAndList('openai', 'gpt', 'sk-test-abcdefghijklmnop
 const codexModels = await verifyAndList('openai', 'codex', 'sk-test-abcdefghijklmnop', fakeModelsFetch);
 if (gptModels.models.map((item) => item.id).join() !== 'gpt-test') throw new Error('GPT model filtering failed.');
 if (codexModels.models.map((item) => item.id).join() !== 'gpt-test-codex') throw new Error('Codex model filtering failed.');
+
+const openAIInput = openAIDesignInput([
+  { name: 'requirements.pdf', mediaType: 'application/pdf', encoding: 'base64', content: 'cGRm' },
+  { name: 'wireframe.png', mediaType: 'image/png', encoding: 'base64', content: 'cG5n' },
+  { name: 'acceptance.docx', mediaType: 'application/octet-stream', encoding: 'base64', content: 'ZG9jeA==' },
+  { name: 'notes.md', mediaType: 'text/markdown', encoding: 'text', content: 'REQ-FILE-001 works.' },
+], {
+  provider: 'openai',
+  model: 'gpt-test',
+});
+const openAIContent = openAIInput[0].content;
+if (!openAIContent.some((item) => item.type === 'input_file' && item.filename === 'requirements.pdf' && item.detail === 'high')) throw new Error('OpenAI PDF input mapping failed.');
+if (!openAIContent.some((item) => item.type === 'input_image' && item.image_url.startsWith('data:image/png;base64,'))) throw new Error('OpenAI image input mapping failed.');
+if (!openAIContent.some((item) => item.type === 'input_file' && item.filename === 'acceptance.docx')) throw new Error('OpenAI DOCX input mapping failed.');
+if (!openAIContent.some((item) => item.type === 'input_text' && item.text.includes('REQ-FILE-001'))) throw new Error('OpenAI text input mapping failed.');
 
 function invoke(body) {
   return new Promise((resolve, reject) => {
