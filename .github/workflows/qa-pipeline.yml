@@ -1,0 +1,104 @@
+name: Agentic QA Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 2 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      requirements_path:
+        description: "Repository-relative requirement file"
+        required: false
+        default: "sample/requirements/sample-crs.md"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-test-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REQUIREMENTS_PATH: ${{ inputs.requirements_path || 'sample/requirements/sample-crs.md' }}
+      QA_AGENT_PROVIDER: mock
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install and verify agent
+        run: |
+          python -m pip install -e ".[dev]"
+          pytest
+
+      - name: Generate approved sample automation
+        run: run-pipeline --input "$REQUIREMENTS_PATH" --output artifacts/latest --provider mock --approve-test-cases
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: automation/pnpm-lock.yaml
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install browser framework
+        working-directory: automation
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install --with-deps chromium firefox webkit
+
+      - name: Type-check and execute Playwright/Cucumber
+        id: tests
+        continue-on-error: true
+        working-directory: automation
+        run: |
+          pnpm run typecheck
+          pnpm test
+
+      - name: Generate Allure HTML report
+        if: always()
+        working-directory: automation
+        run: pnpm run report:allure
+
+      - name: Build static report dashboard
+        if: always()
+        run: node scripts/build-dashboard.mjs
+
+      - name: Upload reports and evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-${{ github.run_number }}
+          path: |
+            artifacts/latest
+            automation/playwright-report
+            automation/allure-results
+            automation/test-results
+            public
+          retention-days: 14
+
+      - name: Deploy dashboard to Vercel
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.VERCEL_TOKEN != ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx --yes vercel@latest deploy --prod --token "$VERCEL_TOKEN"
+
+      - name: Enforce test result
+        if: always() && steps.tests.outcome == 'failure'
+        run: exit 1
