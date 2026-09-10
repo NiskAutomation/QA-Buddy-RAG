@@ -47,7 +47,11 @@ function validateConfig(raw = {}) {
   const provider = String(raw.provider || '');
   if (!supportedProviders.has(provider)) throw new Error('Unsupported AI provider.');
   const model = String(raw.model || '').trim();
-  if (!/^[A-Za-z0-9._-]{2,100}$/.test(model)) throw new Error('Invalid model identifier.');
+  // Provider-qualified IDs use forward slashes, and some catalogs use a
+  // colon suffix (for example `openai/gpt-oss-120b` or `model:free`).
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*(?:\/[A-Za-z0-9][A-Za-z0-9._:-]*)*$/.test(model) || model.length > 160) {
+    throw new Error('Invalid model identifier.');
+  }
   let baseUrl;
   try { baseUrl = new URL(String(raw.baseUrl)).toString(); } catch { throw new Error('Invalid test environment URL.'); }
   const browsers = Array.isArray(raw.browsers) ? raw.browsers.filter((item) => ['chromium', 'firefox', 'webkit', 'mobile-chrome'].includes(item)) : [];
