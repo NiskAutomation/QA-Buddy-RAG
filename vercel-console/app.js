@@ -162,7 +162,7 @@ function App(){
             </div>
             <input ref=${fileInput} className="file-input" type="file" multiple accept=".pdf,.docx,.txt,.md,.markdown,.json,.csv,.png,.jpg,.jpeg,.webp" onChange=${event=>{addFiles(event.target.files);event.target.value=''}}/>
             ${files.length>0&&html`<div className="file-list">${files.map((file,index)=>html`<span className="file-chip"><span>▤</span><strong>${file.name}</strong><small>${formatBytes(file.size)}</small><button type="button" aria-label=${`Remove ${file.name}`} onClick=${event=>{event.stopPropagation();setFiles(current=>current.filter((_,at)=>at!==index))}}>×</button></span>`)}</div>`}
-            ${!['anthropic','gemini','mock'].includes(selected.api)&&html`<p className="action-note">${selected.name} uses text evidence in hosted mode. Choose Claude or Gemini for direct PDF and image analysis.</p>`}
+            <p className="action-note">${evidenceSupportNote(selected)}</p>
             <div className="divider"></div>
             <div className="field"><div className="label-row"><label htmlFor="criteria">Acceptance criteria</label><span className="field-note">${criteria.length.toLocaleString()} chars</span></div><textarea id="criteria" value=${criteria} onInput=${event=>setCriteria(event.target.value)} placeholder="Paste user stories, business rules, or acceptance criteria…"></textarea></div>
           </div>
@@ -237,6 +237,13 @@ async function serializeDocuments(files,criteria){
   }
   if(criteria.trim())documents.push({name:'pasted-acceptance-criteria.md',mediaType:'text/markdown',encoding:'text',content:criteria.trim()});
   return documents;
+}
+
+function evidenceSupportNote(provider){
+  if(provider.api==='openai')return `${provider.name} sends PDF, DOCX, image, and text evidence directly to the selected compatible model.`;
+  if(provider.api==='anthropic'||provider.api==='gemini')return `${provider.name} supports direct PDF and image analysis; paste text when a DOCX cannot be expanded.`;
+  if(provider.api==='mock')return 'Offline demo mode is deterministic. Paste text for meaningful analysis of binary-only uploads.';
+  return `${provider.name} currently uses TXT, Markdown, JSON, CSV, or pasted criteria in the hosted console.`;
 }
 
 function toBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error(`Could not read ${file.name}.`));reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.readAsDataURL(file)})}
